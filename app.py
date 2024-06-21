@@ -4,77 +4,96 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 from datetime import datetime
 
-# تنظیمات احراز هویت
+# Authentication settings
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
 client = gspread.authorize(credentials)
 
-# لینک به گوگل شیت شما
+# Link to your Google Sheet
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/1GB0HaR13Ygb14qe_wTc4DBNs_QWxegfhbRVMv-4WNto/edit?pli=1#gid=0"
 
-# باز کردن شیت
+# Open the sheet
 spreadsheet = client.open_by_url(spreadsheet_url)
 worksheet = spreadsheet.sheet1
 
-# تابع برای خواندن داده‌ها از گوگل شیت
+# Function to read data from Google Sheet
 def read_data():
     data = worksheet.get_all_records()
     return pd.DataFrame(data)
 
-# تابع برای افزودن وظیفه جدید به گوگل شیت
+# Function to add a new task to Google Sheet
 def add_task(task):
     df = read_data()
     new_task = pd.DataFrame([[task, '', 'pending']], columns=['Task', 'Date', 'Completed'])
     updated_df = pd.concat([df, new_task], ignore_index=True)
     worksheet.update([updated_df.columns.values.tolist()] + updated_df.values.tolist())
+    st.success('Task added successfully!')
+    st.balloons()  # Show balloons effect
+    st.experimental_rerun()  # Rerun to show the updated tasks
 
-# تابع برای تکمیل وظیفه
+# Function to complete a task
 def complete_task(index):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    worksheet.update_cell(index + 2, 2, current_time)  # ستون تاریخ و زمان
-    worksheet.update_cell(index + 2, 3, 'done')  # ستون وضعیت
+    worksheet.update_cell(index + 2, 2, current_time)  # Date and time column
+    worksheet.update_cell(index + 2, 3, 'done')  # Status column
+    st.success('Task completed successfully!')
+    st.experimental_rerun()
 
-# تابع برای حذف وظیفه
+# Function to delete a task
 def delete_task(index):
-    worksheet.delete_rows(index + 2)  # +2 به دلیل اینکه گوگل شیت از ردیف 1 شروع می‌شود و ردیف هدر هم وجود دارد
+    worksheet.delete_rows(index + 2)  # +2 because Google Sheets starts from row 1 and there's a header row
+    st.success('Task deleted successfully!')
+    st.experimental_rerun()
 
-# نمایش داده‌ها
-data = read_data()
+# Function to edit a task
+def edit_task(index, new_title):
+    try:
+        worksheet.update_cell(index + 2, 1, new_title)  # Title column
+        st.success('Task title updated successfully!')
+        st.experimental_rerun()
+    except Exception as e:
+        st.error(f"Error editing task title: {e}")
 
-# فرم برای افزودن وظیفه جدید
+# Display data
 st.header("Task Management App")
+
+# Form to add a new task
 with st.form(key='add_form'):
     new_task = st.text_input('New Task')
     submit_button = st.form_submit_button(label='Add Task')
 
 if submit_button and new_task:
     add_task(new_task)
-    st.success('Task added successfully!')
-    st.experimental_rerun()
 
-# نمایش لیستی از وظایف
+# Display task list
 st.header("Tasks List")
-if len(data) > 0:
+data = read_data()
+if not data.empty:
     for index, row in data.iterrows():
         task_text = row['Task']
         task_date = row['Date']
         is_completed = row['Completed'] == 'done'
         
-        col1, col2, col3, col4 = st.columns([4, 3, 2, 2])
+        col1, col2, col3, col4 = st.columns([4, 3, 2, 1])
         
         with col1:
-            checkbox = st.checkbox(f"{task_text} (Completed on: {task_date})", value=is_completed, key=f"task_{index}")
+            new_task_title = st.text_input('Edit Task Title', value=task_text, key=f"edit_{index}")
+            if st.button("Update Title", key=f"update_{index}"):
+                edit_task(index, new_task_title)
+
         with col2:
+            checkbox = st.checkbox(f"{task_text} (Completed on: {task_date})", value=is_completed, key=f"task_{index}")
+
+        with col3:
             if st.button("Delete", key=f"delete_{index}"):
                 delete_task(index)
-                st.experimental_rerun()
-        
+
         if checkbox and not is_completed:
             complete_task(index)
-            st.experimental_rerun()
+
 else:
     st.write("No tasks found.")
 
-# نمایش داده‌ها به صورت جدول
+# Display data as a table
 st.header("Tasks Data")
 st.dataframe(data)
