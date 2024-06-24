@@ -56,8 +56,11 @@ This repository contains a simple Task Management web application built with Str
 
 ## 🚀Usage
 1- Open the app in your web browser (Streamlit will provide a local URL).
+
 2- Use the form to add new tasks.
+
 3- View, edit, complete, and delete tasks using the provided buttons and checkboxes.
+
 4- The tasks and their statuses will be reflected in the linked Google Sheet.
 
 ## 🗂️Files Description
