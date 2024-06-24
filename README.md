@@ -51,9 +51,8 @@ This repository contains a simple Task Management web application built with Str
 
 **Running the Application**
 
-Run the Streamlit app:
-
-`streamlit run app.py`
+- Run the Streamlit app:
+ `streamlit run app.py`
 
 ## 🚀Usage
 1- Open the app in your web browser (Streamlit will provide a local URL).
