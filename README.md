@@ -93,4 +93,6 @@ This project uses the following libraries and services:
 - `oauth2client`
 - `pandas`
 - `Google Sheets API`
-Feel free to contribute to this project by submitting issues or pull requests. For any questions, contact faezedrx@gmail.com.
+Feel free to contribute to this project by submitting issues or pull requests.
+
+## For any questions, contact faezedrx@gmail.com.
