@@ -21,12 +21,14 @@ This repository contains a simple Task Management web application built with Str
 
 **Clone the repository:**
 
-`git clone https://github.com/yourusername/webservice_task_management.git`
+`git clone https://github.com/faezedrx/webservice_task_management.git`
+
 `cd webservice_task_management`
 
 **Create a virtual environment and activate it:**
 
 `python -m venv venv`
+
 `source venv/bin/activate  # On Windows, use `venv\Scripts\activate``
 
 **Install the required packages:**
